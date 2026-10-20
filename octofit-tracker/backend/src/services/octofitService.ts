@@ -84,15 +84,14 @@ export async function createTeam(input: unknown) {
 export async function getLeaderboard() {
   const totals = await Activity.aggregate<{ _id: Types.ObjectId; totalPoints: number }>([
     { $group: { _id: '$team', totalPoints: { $sum: '$points' } } },
-    { $sort: { totalPoints: -1, _id: 1 } },
   ]);
-  const teams = await Team.find({ _id: { $in: totals.map(({ _id }) => _id) } }).select('name').lean();
-  const teamNames = new Map(teams.map((team) => [team._id.toString(), team.name]));
+  const pointsByTeam = new Map(totals.map(({ _id, totalPoints }) => [_id.toString(), totalPoints]));
+  const teams = await Team.find().select('name').lean();
 
-  return totals.flatMap(({ _id, totalPoints }, index) => {
-    const teamName = teamNames.get(_id.toString());
-    return teamName === undefined ? [] : [{ teamName, totalPoints, rank: index + 1 }];
-  });
+  return teams
+    .map((team) => ({ teamName: team.name, totalPoints: pointsByTeam.get(team._id.toString()) ?? 0 }))
+    .sort((left, right) => right.totalPoints - left.totalPoints || left.teamName.localeCompare(right.teamName))
+    .map((entry, index) => ({ ...entry, rank: index + 1 }));
 }
 
 export async function suggestWorkouts(userEmail: string) {

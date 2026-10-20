@@ -34,7 +34,7 @@ OctoFit Tracker is a three-tier application for a school fitness program. The st
 - Activity tracking approach: Validate the submitted user and team IDs and confirm both records exist before writing. Store the user, team, type, and positive minutes; compute points from minutes in the service and set `occurredAt` when it is not supplied by the trusted server flow.
 - Team management approach: Require a team name, preserve the submitted name and mascot, default members to an empty array, and validate member references before saving. Keep team membership references consistent when adding members.
 - Leaderboard approach: Aggregate activity points by team, include teams with no activities at zero, sort by total points descending, and assign 1-based ranks in the service response.
-- Workout suggestions approach: Find the requested user by email, use their fitness goal and recent activities to rank available workouts, and include a human-readable reason with each recommendation. Return a deliberate 4xx response when the user is unknown.
+- Workout suggestions approach: Find the requested user by email, prioritize workouts matching their fitness goal, and use recent activities to provide context in each human-readable recommendation reason. Return a deliberate 4xx response when the user is unknown.
 
 ## Test plan
 
